@@ -1,5 +1,15 @@
 "Your one stop shop for hermetic c/c++ toolchains in Bazel!"
-module(name = "toolchains_cc")
+module(name = "toolchains_cc.bzl")
 
-bazel_dep(name = "rules_cc", version = "0.1.1")
-bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.2.8")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "platforms", version = "1.0.0")
+
+cxx_toolchains = use_extension("@toolchains_cc.bzl", "cxx_toolchains")
+cxx_toolchains.declare(
+    name = "toolchains_cc_default_toolchain",
+)
+use_repo(
+    cxx_toolchains,
+    "toolchains_cc_default_toolchain",
+)

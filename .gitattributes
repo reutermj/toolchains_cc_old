@@ -1,0 +1,4 @@
+tools/ export-ignore
+.github/ export-ignore
+bazel export-ignore
+bazel.bat export-ignore

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euox pipefail
+
+pushd "${OUTPUT_DIR}"
+GCC_FULL_VERSION=$("bin/x86_64-linux-${LIBC}-gcc" --version | head -n1 | awk '{print $NF}')
+
+XZ_OPT=-e9 tar cJf "${ARTIFACT_DIR}/gcc-${GCC_FULL_VERSION}-x86_64-linux-${LIBC}-${LIBC_VERSION}-r${REBUILD_ID}.tar.xz" \
+    bin/ \
+    libexec/ \
+    "x86_64-linux-${LIBC}/lib/" \
+    "x86_64-linux-${LIBC}/bin/"
+
+XZ_OPT=-e9 tar cJf "${ARTIFACT_DIR}/libgcc-${GCC_FULL_VERSION}-x86_64-linux-${LIBC}-${LIBC_VERSION}-r${REBUILD_ID}.tar.xz" \
+    lib/
+
+XZ_OPT=-e9 tar cJf "${ARTIFACT_DIR}/libstdcxx-${GCC_FULL_VERSION}-x86_64-linux-${LIBC}-${LIBC_VERSION}-r${REBUILD_ID}.tar.xz" \
+    "x86_64-linux-${LIBC}/include/" \
+    "x86_64-linux-${LIBC}/lib64/"
+
+XZ_OPT=-e9 tar cJf "${ARTIFACT_DIR}/sysroot-x86_64-linux-${LIBC}-${LIBC_VERSION}-r${REBUILD_ID}.tar.xz" \
+    "x86_64-linux-${LIBC}/sysroot/"
+
+popd

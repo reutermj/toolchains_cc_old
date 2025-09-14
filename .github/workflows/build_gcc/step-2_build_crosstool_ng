@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euox pipefail
+
+git clone https://github.com/crosstool-ng/crosstool-ng "$CT_NG_SRC_DIR"
+pushd "$CT_NG_SRC_DIR"
+./bootstrap
+./configure
+make
+sudo make install
+popd
