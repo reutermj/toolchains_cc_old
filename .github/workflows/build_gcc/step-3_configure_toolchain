@@ -1,0 +1,59 @@
+#!/bin/bash
+set -euox pipefail
+
+pushd "${WORK_DIR}"
+
+# Standard configs
+echo 'CT_CONFIG_VERSION="4"'                                          > defconfig && \
+echo 'CT_ARCH_X86=y'                                                 >> defconfig && \
+echo 'CT_OMIT_TARGET_VENDOR=y'                                       >> defconfig && \
+echo 'CT_ARCH_64=y'                                                  >> defconfig && \
+echo 'CT_STATIC_TOOLCHAIN=y'                                         >> defconfig && \
+echo 'CT_KERNEL_LINUX=y'                                             >> defconfig && \
+echo 'CT_LOG_PROGRESS_BAR=n'                                         >> defconfig && \
+echo 'CT_PREFIX_DIR_RO=n'                                            >> defconfig && \
+echo 'CT_CC_LANG_CXX=y'                                              >> defconfig && \
+echo "CT_PREFIX_DIR=\"${OUTPUT_DIR}/\""                              >> defconfig && \
+echo 'CT_DEBUG_GDB=y'                                                >> defconfig && \
+echo 'CT_CC_GCC_LNK_HASH_STYLE_BOTH=y'                               >> defconfig
+
+# GCC version configs
+case "$GCC_VERSION" in
+    15)
+        echo 'CT_GCC_V_15=y'                                         >> defconfig
+        ;;
+    14)
+        echo 'CT_GCC_V_14=y'                                         >> defconfig
+        echo 'CT_GMP_EXTRA_CFLAGS="-std=gnu17"'                      >> defconfig
+        echo 'CT_NCURSES_EXTRA_CFLAGS="-std=gnu17"'                  >> defconfig
+        ;;
+    13)
+        echo 'CT_GCC_V_13=y'                                         >> defconfig
+        echo 'CT_GMP_EXTRA_CFLAGS="-std=gnu17"'                      >> defconfig
+        echo 'CT_NCURSES_EXTRA_CFLAGS="-std=gnu17"'                  >> defconfig
+        ;;
+    12)
+        echo 'CT_GCC_V_12=y'                                         >> defconfig
+        echo 'CT_GMP_EXTRA_CFLAGS="-std=gnu17"'                      >> defconfig
+        echo 'CT_NCURSES_EXTRA_CFLAGS="-std=gnu17"'                  >> defconfig
+        ;;
+    *)
+        echo "Error: Unsupported gcc_version: $GCC_VERSION" >&2
+        echo "Supported versions: 15, 14, 13, 12" >&2
+        exit 1
+        ;;
+esac
+
+# glibc configs
+if [ "$LIBC" = "gnu" ]; then
+    echo 'CT_GLIBC_KERNEL_VERSION_NONE=y'                            >> defconfig
+    echo "CT_GLIBC_V_$(echo "$LIBC_VERSION" | sed 's/\./_/g')=y"     >> defconfig
+fi
+
+# musl configs
+if [ "$LIBC" = "musl" ]; then
+    echo 'CT_LIBC_MUSL=y'                                            >> defconfig
+    echo "CT_MUSL_V_$(echo "$LIBC_VERSION" | sed 's/\./_/g')=y"      >> defconfig
+fi
+
+popd
