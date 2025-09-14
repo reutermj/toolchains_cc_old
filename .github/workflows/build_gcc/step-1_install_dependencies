@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euox pipefail
+
+sudo apt update
+DEBIAN_FRONTEND=noninteractive sudo apt install -y \
+    build-essential \
+    autoconf \
+    flex \
+    bison \
+    texinfo \
+    help2man \
+    file \
+    gawk \
+    libtool \
+    libtool-bin \
+    libncurses-dev \
+    python3 \
+    python3-dev \
+    unzip \
+    git \
+    wget \
+    curl

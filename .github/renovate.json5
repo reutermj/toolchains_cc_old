@@ -1,0 +1,9 @@
+{
+  extends: [
+    'config:recommended',
+  ],
+  separateMajorMinor: false,
+  dependencyDashboard: true,
+  automerge: true,
+  semanticCommits: "enabled",
+}
