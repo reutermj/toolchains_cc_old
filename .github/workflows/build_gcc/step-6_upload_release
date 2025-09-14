@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euox pipefail
+
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+    echo "GITHUB_TOKEN is not set, exiting"
+    exit 0
+fi
+
+GCC_FULL_VERSION=$("${OUTPUT_DIR}/bin/x86_64-linux-${LIBC}-gcc" --version | head -n1 | awk '{print $NF}')
+
+# Create release name based on the specified format
+RELEASE_NAME=$(cat ${WORK_DIR}/release_name)
+COMMIT_SHA="1b5a2410b266af3bc7aaae0550e7d44ea9dcf878"
+
+# Create the release
+gh release create "${RELEASE_NAME}" \
+    ${ARTIFACT_DIR}/*.tar.xz \
+    ${WORK_DIR}/build.log \
+    --repo https://github.com/reutermj/toolchains_cc \
+    --target "${COMMIT_SHA}" \
+    --latest=false \
+    --title "${RELEASE_NAME}" \
+    --notes "GCC ${GCC_FULL_VERSION} toolchain for x86_64 Linux with ${LIBC} ${LIBC_VERSION}"

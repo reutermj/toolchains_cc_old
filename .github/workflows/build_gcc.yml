@@ -1,0 +1,72 @@
+name: Build gcc
+
+on:
+  push:
+    branches: [ gcc ]
+
+permissions:
+  # Required for uploading GitHub releases
+  contents: write
+  # Required for build provenance attestation
+  actions: read
+  id-token: write
+  attestations: write
+
+env:
+  CT_NG_SRC_DIR: /tmp/crosstool-ng
+  ARTIFACT_DIR: /tmp/toolchain/artifacts
+  OUTPUT_DIR: /tmp/toolchain/output
+  WORK_DIR: /tmp/toolchain/work
+  SCRIPTS_DIR: ${{ github.workspace }}/.github/workflows/build_gcc
+  
+  GCC_VERSION: 15
+  LIBC: gnu
+  LIBC_VERSION: 2.34
+  REBUILD_ID: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        libc_version: ["2.28", "2.29", "2.30", "2.31", "2.32", "2.33", "2.34", "2.35", "2.36", "2.37", "2.38", "2.39", "2.40", "2.41", "2.42"]
+    env:
+      LIBC_VERSION: ${{ matrix.libc_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
+      
+      - name: Create Directories
+        run: |
+          mkdir -p $CT_NG_SRC_DIR
+          mkdir -p $ARTIFACT_DIR
+          mkdir -p $OUTPUT_DIR
+          mkdir -p $WORK_DIR
+      
+      - name: Install Dependencies
+        run: $SCRIPTS_DIR/step-1_install_dependencies
+      
+      - name: Build crosstool-NG
+        run: $SCRIPTS_DIR/step-2_build_crosstool_ng
+      
+      - name: Configure Toolchain
+        run: $SCRIPTS_DIR/step-3_configure_toolchain
+      
+      - name: Build Toolchain
+        run: $SCRIPTS_DIR/step-4_build_toolchain
+      
+      - name: Package Toolchain
+        run: $SCRIPTS_DIR/step-5_package_toolchain
+      
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v3.0.0
+        with:
+          subject-path: |
+            ${{ env.ARTIFACT_DIR }}/*.tar.xz
+            ${{ env.WORK_DIR }}/build.log
+
+      - name: Upload Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: $SCRIPTS_DIR/step-6_upload_release
