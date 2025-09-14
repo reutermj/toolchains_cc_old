@@ -1,0 +1,28 @@
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+
+# this allows for the convenience toolchain to be registered by users with fun naming. Ex:
+# register_toolchains("@toolchains_cc")
+alias(
+    name = "toolchains_cc",
+    actual = "@toolchains_cc_default_toolchain",
+)
+
+buildifier(
+    name = "buildifier.check",
+    exclude_patterns = [
+        "./.git/*",
+    ],
+    lint_mode = "warn",
+    mode = "check",
+    visibility = ["//visibility:private"],
+)
+
+buildifier(
+    name = "buildifier.fix",
+    exclude_patterns = [
+        "./.git/*",
+    ],
+    lint_mode = "warn",
+    mode = "fix",
+    visibility = ["//visibility:private"],
+)

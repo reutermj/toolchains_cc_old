@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euox pipefail
+
+pushd "${WORK_DIR}"
+ct-ng defconfig
+ct-ng build
+popd

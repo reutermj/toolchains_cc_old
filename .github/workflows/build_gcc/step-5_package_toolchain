@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euox pipefail
+
+pushd "${OUTPUT_DIR}"
+GCC_FULL_VERSION=$("bin/x86_64-linux-${LIBC}-gcc" --version | head -n1 | awk '{print $NF}')
+RELEASE_NAME="x86_64-linux-${LIBC}-${LIBC_VERSION}-gcc-${GCC_FULL_VERSION}-$(date +%Y%m%d)"
+echo $RELEASE_NAME > ${WORK_DIR}/release_name
+
+XZ_OPT=-e9 tar cJf "${ARTIFACT_DIR}/${RELEASE_NAME}.tar.xz" \
+    bin/ \
+    lib/ \
+    libexec/ \
+    share/ \
+    "x86_64-linux-${LIBC}" \
+
+popd
