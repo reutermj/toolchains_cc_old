@@ -1,0 +1,35 @@
+name: Bazel Hello World
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cxx_std_lib: [libstdc++, libc++]
+        triple: [x86_64-unknown-linux-gnu, x86_64-alpine-linux-musl]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: build examples
+      run: |
+        cd examples/hello_world
+        
+        ../../bazel build \
+          --repo_env=toolchains_cc_cxx_std_lib=${{ matrix.cxx_std_lib }} \
+          --repo_env=toolchains_cc_triple=${{ matrix.triple }} \
+          //...
+
+        python3 validate_linkage.py \
+          --base_path $(../../bazel info bazel-bin) \
+          --cxx_std_lib=${{ matrix.cxx_std_lib }} \
+          --triple=${{ matrix.triple }}
